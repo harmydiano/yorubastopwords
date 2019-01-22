@@ -62,8 +62,6 @@ python-mpd==0.3.0
 pytoml==0.1.20
 pyttsx3==2.7
 pytz==2014.10
-pywin32==224
-pywinpty==0.5.4
 PyYAML==3.11
 pyzmq==17.1.2
 quantities==0.12.2
@@ -79,7 +77,6 @@ testpath==0.4.2
 tornado==5.1.1
 traitlets==4.3.2
 tzlocal==1.5.1
-UNKNOWN==2.0.3
 urllib3==1.24.1
 wcwidth==0.1.7
 webencodings==0.5.1
