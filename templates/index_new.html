@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Generate Yoruba stopwords using advanced statistical NLP techniques">
+    <meta name="author" content="Yoruba NLP">
+
+    <title>Yoruba Stopwords Generator</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+
+    <!-- Custom fonts -->
+    <link href="{{ url_for('static', filename='vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <!-- Custom styles -->
+    <link href="{{ url_for('static', filename='css/landing-page.min.css') }}" rel="stylesheet">
+
+    <style>
+        .upload-area {
+            border: 3px dashed #007bff;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            background: #e9ecef;
+            border-color: #0056b3;
+        }
+        .upload-area.dragover {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+        }
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .download-btn {
+            margin: 5px;
+        }
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+        .file-preview {
+            background: white;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .loading.show {
+            display: block;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Alerts -->
+    <div class="alert-container" id="alertContainer">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-light bg-light static-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-language"></i> Yoruba Stopwords Generator
+            </a>
+            <a class="btn btn-primary" href="/api/stopwords" target="_blank">
+                <i class="fas fa-code"></i> API
+            </a>
+        </div>
+    </nav>
+
+    <!-- Masthead -->
+    <header class="masthead text-white text-center">
+        <div class="overlay"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-9 mx-auto">
+                    <h1 class="mb-3">Generate Yoruba Stopwords with AI</h1>
+                    <p class="lead mb-5">
+                        Upload Yoruba documents and let our advanced statistical NLP algorithms
+                        identify common stopwords automatically.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="row">
+                <div class="col-md-10 col-lg-8 col-xl-7 mx-auto">
+                    <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                            <h4>Drag & Drop Files Here</h4>
+                            <p class="text-muted">or click to browse</p>
+                            <input
+                                type="file"
+                                name="files[]"
+                                id="fileInput"
+                                multiple
+                                accept=".docx,.doc,.txt"
+                                style="display: none;"
+                            >
+                            <small class="text-muted">
+                                Supported formats: .docx, .doc, .txt (Max 16MB)
+                            </small>
+                        </div>
+
+                        <!-- File Preview -->
+                        <div id="filePreview"></div>
+
+                        <!-- Loading Indicator -->
+                        <div class="loading" id="loadingIndicator">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Processing...</span>
+                            </div>
+                            <p class="mt-3">Processing your documents... This may take a moment.</p>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button
+                            type="submit"
+                            class="btn btn-primary btn-lg btn-block mt-4"
+                            id="submitBtn"
+                            disabled
+                        >
+                            <i class="fas fa-magic"></i> Generate Stopwords
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            {% if status == 'success' and stopwords_count > 0 %}
+            <div class="row mt-5">
+                <div class="col-md-10 col-lg-8 col-xl-7 mx-auto">
+                    <div class="stats-card">
+                        <h3 class="mb-4">
+                            <i class="fas fa-check-circle text-success"></i>
+                            Stopwords Generated Successfully!
+                        </h3>
+
+                        <!-- Statistics -->
+                        <div class="row text-center mb-4">
+                            <div class="col-md-3 col-6">
+                                <div class="stats-number">{{ stopwords_count }}</div>
+                                <div class="stats-label">Stopwords</div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="stats-number">{{ statistics.get('total_documents', 0) }}</div>
+                                <div class="stats-label">Documents</div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="stats-number">{{ statistics.get('unique_words', 0) }}</div>
+                                <div class="stats-label">Unique Words</div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="stats-number">{{ statistics.get('total_words', 0) }}</div>
+                                <div class="stats-label">Total Words</div>
+                            </div>
+                        </div>
+
+                        <!-- Download Buttons -->
+                        <h5 class="mb-3">Download Results:</h5>
+                        <div class="btn-group-vertical btn-group-lg" role="group">
+                            {% for format, path in file_links.items() %}
+                                <a href="/download/{{ path.split('/')[-1] }}"
+                                   class="btn btn-outline-primary download-btn">
+                                    <i class="fas fa-download"></i>
+                                    Download as {{ format.upper() }}
+                                </a>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Additional Stats -->
+                        <div class="mt-4 text-left">
+                            <h6>Processing Details:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-chart-line"></i> High Frequency Words: {{ statistics.get('high_frequency_words', 0) }}</li>
+                                <li><i class="fas fa-chart-bar"></i> Low TF-IDF Words: {{ statistics.get('low_tfidf_words', 0) }}</li>
+                                <li><i class="fas fa-chart-pie"></i> High Entropy Words: {{ statistics.get('high_entropy_words', 0) }}</li>
+                                <li><i class="fas fa-chart-area"></i> High Variance Words: {{ statistics.get('high_variance_words', 0) }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="features-icons bg-light text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+                        <div class="features-icons-icon d-flex">
+                            <i class="fas fa-brain m-auto text-primary"></i>
+                        </div>
+                        <h3>AI-Powered</h3>
+                        <p class="lead mb-0">Uses advanced TF-IDF, entropy, and variance algorithms</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+                        <div class="features-icons-icon d-flex">
+                            <i class="fas fa-globe-africa m-auto text-primary"></i>
+                        </div>
+                        <h3>Yoruba Native</h3>
+                        <p class="lead mb-0">Properly handles tone marks and Yoruba characters</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="features-icons-item mx-auto mb-0 mb-lg-3">
+                        <div class="features-icons-icon d-flex">
+                            <i class="fas fa-file-export m-auto text-primary"></i>
+                        </div>
+                        <h3>Multiple Formats</h3>
+                        <p class="lead mb-0">Export as TXT, JSON, CSV, or DOCX</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 h-100 text-center text-lg-left my-auto">
+                    <p class="text-muted small mb-4 mb-lg-0">
+                        &copy; Yoruba Stopwords Generator 2025.
+                        Built with Flask & scikit-learn.
+                    </p>
+                </div>
+                <div class="col-lg-6 h-100 text-center text-lg-right my-auto">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item mr-3">
+                            <a href="/api/health" target="_blank">
+                                <i class="fas fa-heartbeat fa-2x fa-fw"></i>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="https://github.com" target="_blank">
+                                <i class="fab fa-github fa-2x fa-fw"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const filePreview = document.getElementById('filePreview');
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadForm = document.getElementById('uploadForm');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+            displayFiles();
+        });
+
+        // File selection
+        fileInput.addEventListener('change', displayFiles);
+
+        function displayFiles() {
+            const files = fileInput.files;
+            filePreview.innerHTML = '';
+
+            if (files.length > 0) {
+                submitBtn.disabled = false;
+
+                for (let file of files) {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'file-preview';
+                    fileDiv.innerHTML = `
+                        <div>
+                            <i class="fas fa-file-word text-primary"></i>
+                            <strong>${file.name}</strong>
+                            <small class="text-muted">(${(file.size / 1024).toFixed(2)} KB)</small>
+                        </div>
+                        <i class="fas fa-check-circle text-success"></i>
+                    `;
+                    filePreview.appendChild(fileDiv);
+                }
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Form submission
+        uploadForm.addEventListener('submit', () => {
+            loadingIndicator.classList.add('show');
+            submitBtn.disabled = true;
+        });
+
+        // Auto-dismiss alerts
+        setTimeout(() => {
+            $('.alert').alert('close');
+        }, 5000);
+    </script>
+</body>
+</html>
