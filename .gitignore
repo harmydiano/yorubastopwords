@@ -1,1 +1,106 @@
-node_modules
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+
+# Uploads and outputs
+uploads/*.docx
+uploads/*.txt
+uploads/*.jpg
+uploads/*.png
+uploads/*.jpeg
+uploads/*.pdf
+uploads/*.doc
+output*.txt
+test_output/
+!uploads/.gitkeep
+!uploads/yoruba_stopwords.txt
+!uploads/yoruba_stopwords.json
+!uploads/yoruba_stopwords.csv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Node modules (for frontend dependencies)
+node_modules/
+
+# Flask
+instance/
+.webassets-cache
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Docker
+*.log
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Claude Code / AI Assistant
+.claude/
+
+# Test files (keep test scripts, ignore test data)
+test_with_txt.py
+
+# Background task outputs
+/var/folders/
+*.output
+
+# Documentation (keep only README.md)
+*.md
+!README.md
