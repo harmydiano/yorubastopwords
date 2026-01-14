@@ -116,6 +116,9 @@ python app.py
 3. Click "Upload and Process"
 4. Download the generated stopwords in your preferred format
 
+### Demo Url
+https://yorubastopwords.onrender.com/
+
 ### API Usage
 
 #### Get Stopwords (JSON)
