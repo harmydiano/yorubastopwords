@@ -376,20 +376,6 @@ mypy *.py
 3. Add tests
 4. Submit a pull request
 
-## Deployment
-
-### Heroku
-
-```bash
-heroku create yoruba-stopwords
-git push heroku master
-heroku open
-```
-
-### AWS/GCP/Azure
-
-See `deployment/` directory for cloud-specific instructions.
-
 ## Contributing
 
 Contributions are welcome! Please:
