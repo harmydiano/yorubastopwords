@@ -116,6 +116,7 @@ python app.py
 3. Click "Upload and Process"
 4. Download the generated stopwords in your preferred format
 
+
 ### Demo Url
 https://yorubastopwords.onrender.com/
 
@@ -183,6 +184,30 @@ analyzer.save_stopwords(
     formats=['txt', 'json', 'csv']
 )
 ```
+
+### Default Stopword List
+
+A pre-generated **default stopword list** is included for a quick use.  
+
+It was generated using the tool's default settings (combined statistical + linguistic methods) on a religious texts from the Niger-Volta Yoruba corpus.
+
+- **TXT format** (simple, one word per line): [`data/yoruba_stopwords_default.txt`](./data/yoruba_stopwords.txt)  
+- **JSON format** (with metadata like generation date and thresholds): [`data/yoruba_stopwords_default.json`](./data/yoruba_stopwords.json) 
+
+**Note**: This is a list generated from a religious corpus. For specialized use cases (e.g., only news or literature), generate a custom list via the web app, API, or Python class.
+
+### Quick Usage Example (Python)
+
+```python
+# Load the default stopwords into a set (recommended for fast lookups)
+with open('data/yoruba_stopwords.txt', encoding='utf-8') as f:
+    yoruba_stopwords = set(line.strip() for line in f if line.strip())
+
+# Example: Filter stopwords from a sentence
+text = "Mo fẹ́ ra ọkọ̀ ayọ́kẹ́lẹ́ lọ́wọ́ ọ̀rẹ́ mi"
+words = text.split()
+filtered = [word for word in words if word.lower() not in yoruba_stopwords]
+print("Filtered:", filtered)
 
 ## Configuration
 
