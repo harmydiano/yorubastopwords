@@ -1,3 +1,10 @@
+[![Python](https://img.shields.io/badge/python-3.9+-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/harmydiano/yorubastopwords/blob/main/LICENSE)
+[![Demo](https://img.shields.io/badge/demo-online-brightgreen)](https://yorubastopwords.onrender.com/)
+
+# yorubastopwords
+...
+
 # Yoruba Stopwords Generator
 
 A web application for automatically extracting stopwords from Yoruba language documents using statistical natural language processing techniques.
